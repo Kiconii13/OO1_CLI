@@ -29,6 +29,8 @@ public:
     explicit EchoCommand(const std::string& arg = "");
     void execute() override;
     int getNumberOfTokens() const override { return numberOfTokens; }
+    // Metoda za dobijanje prethodno ispisanog teksta
+    inline std::string getLastOutput() const { return argument; };
 private:
     std::string argument;
     int numberOfTokens = 2;
@@ -38,12 +40,20 @@ private:
 class TimeCommand : public Command {
 public:
     void execute() override;
+    // Metoda za dobijanje prethodno ispisanog teksta
+    inline std::string getLastOutput() const { return output; };
+private:
+    std::string output;
 };
 
 // Klasa komande za ispis datuma - date
 class DateCommand : public Command {
 public:
     void execute() override;
+    // Metoda za dobijanje prethodno ispisanog teksta
+    inline std::string getLastOutput() const { return output; };
+private:
+    std::string output;
 };
 
 // Klasa komande za kreiranje fajla - touch 
@@ -66,19 +76,23 @@ class WordCountCommand : public Command {
 public:
     // Konstruktor koji prihvata argument i opciju komande, argumenti mogu biti -w i -c
     explicit WordCountCommand(const std::string& opt, const std::string& arg = "");
-    
+
     void execute() override;
 
     // Metoda za prebrojavanje karaktera
     void countChars();
-    
+
     // Metoda za prebrojavanje reči
     void countWords();
+
+    // Metoda za dobijanje prethodno ispisanog teksta
+    inline int getLastOutput() const { return output; };
 
     int getNumberOfTokens() const override { return numberOfTokens; }
 private:
     std::string argument;
     std::string option;
+    int output;
     int numberOfTokens = 3;
 };
 
@@ -111,4 +125,20 @@ public:
 private:
     static constexpr int numberOfTokens = 2;
 };
+
+// Klasa komande za ispis prvih n linija - head
+class HeadCommand : public Command {
+public:
+    HeadCommand(const std::string& option, const std::string& arg = "");
+    void execute() override;
+
+    int getNumberOfTokens() const override { return numberOfTokens; }
+    static bool validTokens(const std::vector<std::string>& tokens);
+
+private:
+    static constexpr int numberOfTokens = 3;
+    int lineCount;
+    std::string content;
+};
+
 #endif

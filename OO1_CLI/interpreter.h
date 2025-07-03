@@ -22,12 +22,18 @@ public:
 
     // Funkcija za izvršavanje zadatih komandi
     void parseAndExecute(const std::string& line);
-    
+
     // Prompt sign getter
     inline std::string getSign() { return sign; }
-    
+
     // Funkcija za menjanje prompt znaka
     void changeSign(const std::string newSign);
+
+    // Metoda za pronalazak komande i pokretanje izvršavanja
+    void findCommand(const std::vector<std::string>& command);
+
+    // Metoda za pronalazak komande i pokretanje izvršavanja kroz pipeline
+    void findCommandPipeline(std::vector<std::string>& command);
 
     // Funkcija za izvršenje echo komande unutar interpetera
     void checkAndExecuteEcho(const std::vector<std::string>& tokens);
@@ -52,10 +58,17 @@ public:
 
     // Funkcija za izvršavanje rm komande unutar interpretera
     void checkAndExecuteRm(const std::vector<std::string>& tokens);
+
+    // Metoda za vraćanje poslednjeg ispisanog reda na komandnoj liniji
+    inline std::string getLastOutput() const { return output; }; 
+
 private:
 
     // Privatni konstruktor za sprečavanje instanciranja
     Interpreter() = default;
+
+    // Poslednji ispisan tekst na komandnoj liniji
+    std::string output;
 
     // Privatni destruktor
     ~Interpreter() = default;

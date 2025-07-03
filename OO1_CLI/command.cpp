@@ -6,6 +6,7 @@
 #include <fstream>
 
 
+
 // Provera da li ima dovoljno tokena za rad komande // nasleđena metoda za sve komande
 
 bool Command::validTokens(const std::vector<std::string>& tokens) {
@@ -45,13 +46,14 @@ void EchoCommand::execute() {
     std::cout << argument << std::endl;
 }
 
-
-
 // TimeCommand setup
 
 void TimeCommand::execute() {
     auto now = std::chrono::system_clock::now();
     auto in_time_t = std::chrono::system_clock::to_time_t(now);
+    std::ostringstream oss;
+    oss << std::put_time(std::localtime(&in_time_t), "%H:%M:%S");
+    output = oss.str();
 
     std::cout << std::put_time(std::localtime(&in_time_t), "%H:%M:%S") << std::endl;
 }
@@ -63,6 +65,9 @@ void TimeCommand::execute() {
 void DateCommand::execute() {
     auto now = std::chrono::system_clock::now();
     auto in_time_t = std::chrono::system_clock::to_time_t(now);
+    std::ostringstream oss;
+    oss << std::put_time(std::localtime(&in_time_t), "%d:%m:%Y");
+    output = oss.str();
 
     std::cout << std::put_time(std::localtime(&in_time_t), "%d.%m.%Y") << std::endl;
 }
@@ -115,7 +120,7 @@ WordCountCommand::WordCountCommand(const std::string& opt, const std::string& ar
     }
 }
 
-void WordCountCommand::execute(){
+void WordCountCommand::execute() {
     if (option == "-w") {
         countWords();
     }
@@ -129,10 +134,12 @@ void WordCountCommand::execute(){
 
 void WordCountCommand::countWords() {
     std::vector<std::string> words = splitString(argument);
+    output = words.size();
     std::cout << words.size() << std::endl;
 }
 
 void WordCountCommand::countChars() {
+    output = argument.size();
     std::cout << argument.size() << std::endl;
 }
 
@@ -172,4 +179,50 @@ void RmCommand::execute(const std::string& fileName) {
     else {
         std::cerr << "Error: File \"" << fileName << "\" could not be removed." << std::endl;
     }
+}
+// HeadCommand setup
+
+HeadCommand::HeadCommand(const std::string& option, const std::string& arg) {
+    // Provera da li opcija pocinje sa -n
+    if (option.rfind("-n", 0) != 0 || option.size() <= 2) {
+        throw std::runtime_error("Invalid option format. Use -n<count> with up to 5 digits.");
+    }
+
+    std::string numberPart = option.substr(2);
+    if (numberPart.size() > 5 || numberPart.find_first_not_of("0123456789") != std::string::npos) {
+        throw std::runtime_error("Invalid count format. Must be up to 5 digits.");
+    }
+
+    lineCount = std::stoi(numberPart);
+
+    if (arg.empty()) {
+        // Unos sa standardnog ulaza
+        std::ostringstream inputBuffer;
+        std::string line;
+        while (std::getline(std::cin, line)) {
+            inputBuffer << line << '\n';
+        }
+        std::cin.clear(); // Resetuje cin stanje nakon CTRL+Z
+        content = inputBuffer.str();
+    }
+    else {
+        content = readArgument(arg); // Tekst iz fajla ili stringa pod navodnicima
+    }
+}
+
+void HeadCommand::execute() {
+    std::istringstream iss(content);
+    std::string line;
+    int count = 0;
+    while (count < lineCount && std::getline(iss, line)) {
+        std::cout << line << '\n';
+        count++;
+    }
+}
+
+bool HeadCommand::validTokens(const std::vector<std::string>& tokens) {
+    if (tokens.size() == 3) return true; // head -nX "tekst" ili fajl
+    if (tokens.size() == 2) return true; // head -nX  (standardni ulaz)
+    std::cout << "Required format: head -n<count> [argument]\n";
+    return false;
 }

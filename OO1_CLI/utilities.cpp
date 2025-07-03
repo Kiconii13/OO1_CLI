@@ -61,7 +61,7 @@ std::string checkInput(const std::vector<std::string>& tokens) {
     std::regex validFileTokenRegex(R"(^[a-zA-Z0-9\-._]+$)"); // Dozvoljava tačku van navodnika
     std::regex validCharacterRegex(R"(^[a-zA-Z0-9\-\"_]+$)"); // Ne -||-
 
-    std::string fullInput;   
+    std::string fullInput;
     std::string errorPointer;
 
     bool inQuotes = false;      // on-off switch koji proverava da li smo unutar navodnika
@@ -132,13 +132,15 @@ std::string checkInput(const std::vector<std::string>& tokens) {
     return errorMsg.str();
 }
 
-std::vector<std::vector<std::string>> splitInput(const std::string& input) {
-    std::vector<std::vector<std::string>> commands;
+commandsFromInput splitInput(const std::string& input) {
+    commandsFromInput commands;
     std::vector<std::string> currentCommand;
     std::istringstream stream(input);
     std::string token;
+    int commandIndex = 0;
     bool inQuotes = false;
     char currentChar;
+    bool outputFile = false;
 
     while (stream.get(currentChar)) {
         if (currentChar == '"') {
@@ -153,14 +155,20 @@ std::vector<std::vector<std::string>> splitInput(const std::string& input) {
             token += currentChar; // Ubacuju se karakteri unutar navodnika
         }
         else if (currentChar == '|') {
+            commands.isPipeline = true;
             if (!token.empty()) {
                 currentCommand.push_back(token);
                 token.clear();
             }
             if (!currentCommand.empty()) {
-                commands.push_back(currentCommand); // Dodavanje trenutne komande
+                commands.commands.push_back(currentCommand); // Dodavanje trenutne komande
                 currentCommand.clear();
             }
+        }
+        else if (currentChar == '<');
+        else if (currentChar == '>') {
+            if (!commands.outputRedirected[commandIndex]) commands.outputRedirected[commandIndex] = true;
+            else commands.outputAppend[commandIndex] = true;
         }
         else if (currentChar == ' ') {
             if (!token.empty()) {
@@ -178,7 +186,8 @@ std::vector<std::vector<std::string>> splitInput(const std::string& input) {
         currentCommand.push_back(token);
     }
     if (!currentCommand.empty()) {
-        commands.push_back(currentCommand);
+        commands.commands.push_back(currentCommand);
+        commandIndex++;
     }
 
     return commands;

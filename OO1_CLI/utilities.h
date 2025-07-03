@@ -4,6 +4,18 @@
 #include <string>
 #include <vector>
 
+// Struktura za prosleđivanje komandi
+
+struct commandsFromInput {
+    std::vector<std::vector<std::string>> commands;
+    bool isPipeline = false;
+    std::vector<bool> inputRedirected;
+    std::vector<bool> outputRedirected;
+    std::vector<std::string> outputFile;
+    std::vector<bool> outputAppend;
+};
+
+
 // Pomoćne funkcije za rad
 
 // Čitanje argumenta
@@ -16,7 +28,7 @@ std::string readLimitedLine();
 std::vector<std::string> splitString(const std::string& str);
 
 // Podela inputa u numerabilni vektor, ako naiđe na tekst pod navodnicima, tretira ga kao jednu celinu
-std::vector<std::vector<std::string>> splitInput(const std::string& input);
+commandsFromInput splitInput(const std::string& input);
 
 // Čitanje i provera da li je opcija u odgovarajućem formatu
 std::string readOption(const std::string& rawOption);
