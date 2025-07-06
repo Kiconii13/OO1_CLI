@@ -10,6 +10,7 @@ struct commandsFromInput {
     std::vector<std::vector<std::string>> commands;
     bool isPipeline = false;
     std::vector<bool> inputRedirected;
+    std::vector<std::string> inputFile;
     std::vector<bool> outputRedirected;
     std::vector<std::string> outputFile;
     std::vector<bool> outputAppend;

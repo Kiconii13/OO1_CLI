@@ -17,9 +17,17 @@ void Interpreter::parseAndExecute(const std::string& line) {
     }
 
     // Iteracija kroz sve komande
-    for (auto& tokens : commands.commands) {
-        if (commands.isPipeline) this->findCommandPipeline(tokens);
-        else this->findCommand(tokens);
+    for (size_t i = 0; i < commands.commands.size(); i++) {
+        if (commands.isPipeline)
+            this->findCommandPipeline(commands.commands[i]);
+        else
+            this->findCommand(commands.commands[i]);
+
+        // Ako postoji nešto u output promenljivoj
+        if (!this->output.empty() && commands.outputRedirected[i]) {
+            if (commands.outputAppend[i]) this->appendToFile(commands.outputFile[i], this->output);
+            else this->overwriteFile(commands.outputFile[i], this->output);
+        }
     }
     this->output.clear();
 }
@@ -242,4 +250,24 @@ void Interpreter::findCommandPipeline(std::vector<std::string>& command) {
     else {
         std::cerr << "Unknown command: " << command[0] << std::endl;
     }
+}
+
+void Interpreter::overwriteFile(const std::string& filename, const std::string& content) {
+    std::ofstream fout(filename, std::ios::trunc);
+    if (!fout.is_open()) {
+        std::cerr << "Error opening file for overwrite: " << filename << std::endl;
+        return;
+    }
+    fout << content;
+    fout.close();
+}
+
+void Interpreter::appendToFile(const std::string& filename, const std::string& content) {
+    std::ofstream fout(filename, std::ios::app);
+    if (!fout.is_open()) {
+        std::cerr << "Error opening file for append: " << filename << std::endl;
+        return;
+    }
+    fout << content;
+    fout.close();
 }

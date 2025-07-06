@@ -59,6 +59,12 @@ public:
     // Funkcija za izvršavanje rm komande unutar interpretera
     void checkAndExecuteRm(const std::vector<std::string>& tokens);
 
+    // Izvršava redirekciju - upis u fajl
+    void overwriteFile(const std::string& filename, const std::string& content);
+
+    // Izvršava redirekciju - dodajte na postojeći sadržaj fajla
+    void appendToFile(const std::string& filename, const std::string& content);
+
     // Metoda za vraćanje poslednjeg ispisanog reda na komandnoj liniji
     inline std::string getLastOutput() const { return output; }; 
 

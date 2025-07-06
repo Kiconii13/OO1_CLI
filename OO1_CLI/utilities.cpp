@@ -140,7 +140,12 @@ commandsFromInput splitInput(const std::string& input) {
     int commandIndex = 0;
     bool inQuotes = false;
     char currentChar;
-    bool outputFile = false;
+
+    // inicijalizacija za (prvu) komandu
+    commands.inputRedirected.push_back(false);
+    commands.outputRedirected.push_back(false);
+    commands.outputAppend.push_back(false);
+    commands.outputFile.push_back("");
 
     while (stream.get(currentChar)) {
         if (currentChar == '"') {
@@ -164,20 +169,59 @@ commandsFromInput splitInput(const std::string& input) {
                 commands.commands.push_back(currentCommand); // Dodavanje trenutne komande
                 currentCommand.clear();
             }
+            commandIndex++;
+
+            // pripremi nove redirekcione slotove za sledeću komandu
+            commands.inputRedirected.push_back(false);
+            commands.outputRedirected.push_back(false);
+            commands.outputAppend.push_back(false);
+            commands.outputFile.push_back("");
         }
         else if (currentChar == '<');
         else if (currentChar == '>') {
-            if (!commands.outputRedirected[commandIndex]) commands.outputRedirected[commandIndex] = true;
-            else commands.outputAppend[commandIndex] = true;
+            bool isOutput = (currentChar == '>');
+            bool append = false;
+
+            // proveri da li je odmah iza još jedno >
+            if (isOutput && stream.peek() == '>') {
+                stream.get(currentChar);
+                append = true;
+            }
+
+            // preskoči eventualne razmake posle >
+            while (isspace(stream.peek())) stream.get();
+
+            // pročitaj ime fajla
+            std::string filename;
+            while (stream.peek() != EOF) {
+                char c = stream.peek();
+                if (isspace(c) || c == '|' || c == '<' || c == '>') {
+                    break;
+                }
+                stream.get(c);
+                filename += c;
+            }
+
+            if (!filename.empty()) {
+                if (isOutput) {
+                    commands.outputRedirected[commandIndex] = true;
+                    commands.outputAppend[commandIndex] = append;
+                    commands.outputFile[commandIndex] = filename;
+                }
+                else {
+                    commands.inputRedirected[commandIndex] = true;
+                    commands.outputFile[commandIndex] = filename;
+                }
+            }
         }
-        else if (currentChar == ' ') {
+        else if (isspace(currentChar)) {
             if (!token.empty()) {
-                currentCommand.push_back(token); // Dodavanje kada se naidje na razmak
+                currentCommand.push_back(token);
                 token.clear();
             }
         }
         else {
-            token += currentChar; // Ubacuju se karakteri van navodnika
+            token += currentChar;
         }
     }
 
@@ -187,11 +231,11 @@ commandsFromInput splitInput(const std::string& input) {
     }
     if (!currentCommand.empty()) {
         commands.commands.push_back(currentCommand);
-        commandIndex++;
     }
 
     return commands;
 }
+
 
 
 // Pomoćna funkcija koja je korišćena u testiranju
