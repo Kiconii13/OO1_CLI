@@ -226,3 +226,44 @@ bool HeadCommand::validTokens(const std::vector<std::string>& tokens) {
     std::cout << "Required format: head -n<count> [argument]\n";
     return false;
 }
+
+TrCommand::TrCommand(const std::string& whatArg, const std::string& withArg, const std::string& arg)
+    : what(readArgument(whatArg)), with(!withArg.empty() ? readArgument(withArg) : "")
+{
+    if (arg.empty()) {
+        // Čitanje sa standardnog ulaza
+        std::ostringstream inputBuffer;
+        std::string line;
+        while (std::getline(std::cin, line)) {
+            inputBuffer << line << '\n';
+        }
+        argument = inputBuffer.str();
+        std::cin.clear();
+    }
+    else {
+        argument = readArgument(arg);
+    }
+}
+
+
+
+void TrCommand::execute() {
+    std::string result = argument;
+
+    if (!what.empty()) {
+        size_t pos = 0;
+        while ((pos = result.find(what, pos)) != std::string::npos) {
+            result.replace(pos, what.length(), with);
+            pos += with.length();
+        }
+    }
+
+    std::cout << result << std::endl;
+    this->output = result;
+}
+
+bool TrCommand::validTokens(const std::vector<std::string>& tokens) {
+    if (tokens.size() > 1 && tokens.size() < 5) return true;
+    std::cout << "Required format: tr [argument] what [with]\n";
+    return false;
+}

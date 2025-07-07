@@ -30,10 +30,7 @@ public:
     void changeSign(const std::string newSign);
 
     // Metoda za pronalazak komande i pokretanje izvršavanja
-    void findCommand(const std::vector<std::string>& command);
-
-    // Metoda za pronalazak komande i pokretanje izvršavanja kroz pipeline
-    void findCommandPipeline(std::vector<std::string>& command);
+    void findAndExecuteCommand(std::vector<std::string>& command, bool isPipeline);
 
     // Funkcija za izvršenje echo komande unutar interpetera
     void checkAndExecuteEcho(const std::vector<std::string>& tokens);
@@ -58,6 +55,9 @@ public:
 
     // Funkcija za izvršavanje rm komande unutar interpretera
     void checkAndExecuteRm(const std::vector<std::string>& tokens);
+
+    // Funkcija za izvršavanje tr komande unutar interpretera
+    void checkAndExecuteTr(const std::vector<std::string>& tokens);
 
     // Izvršava redirekciju - upis u fajl
     void overwriteFile(const std::string& filename, const std::string& content);

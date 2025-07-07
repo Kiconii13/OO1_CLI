@@ -141,4 +141,23 @@ private:
     std::string content;
 };
 
+// Klasa komande za manipulaciju tekstom - tr
+class TrCommand : public Command{
+public:
+    TrCommand(const std::string& whatArg, const std::string& withArg = "", const std::string& arg = "");
+    void execute() override;
+    int getNumberOfTokens() const override { return numberOfTokens; };
+    static bool validTokens(const std::vector<std::string>& tokens);
+    inline std::string getLastOutput() const { return output; };
+    inline static void validTokens(const int number) { std::cout << "Required number of arguments (including function name) is " << number <<" or " << number+1 << "\n"; }
+private:
+    int numberOfTokens = 3;
+    std::string output;
+    std::string argument;
+    std::string what;
+    std::string with;
+    bool replaceOnly;
+
+};
+
 #endif

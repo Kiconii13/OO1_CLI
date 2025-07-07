@@ -18,10 +18,7 @@ void Interpreter::parseAndExecute(const std::string& line) {
 
     // Iteracija kroz sve komande
     for (size_t i = 0; i < commands.commands.size(); i++) {
-        if (commands.isPipeline)
-            this->findCommandPipeline(commands.commands[i]);
-        else
-            this->findCommand(commands.commands[i]);
+        this->findAndExecuteCommand(commands.commands[i],commands.isPipeline);
 
         // Ako postoji nešto u output promenljivoj
         if (!this->output.empty() && commands.outputRedirected[i]) {
@@ -129,67 +126,63 @@ void Interpreter::checkAndExecuteRm(const std::vector<std::string>& tokens) {
     }
 }
 
-void Interpreter::findCommand(const std::vector<std::string>& command) {
-        if (command.empty()) {
-            std::cerr << "Empty command detected, skipping.\n";
-            return;
+void Interpreter::checkAndExecuteTr(const std::vector<std::string>& tokens) {
+    std::string arg;
+    std::string what;
+    std::string with;
+
+    std::string lastOutput = !this->output.empty() ? this->output : "";
+
+    if (tokens.size() > 3) {
+        // tr argument what with
+        arg = tokens[1];
+        what = tokens[2];
+        with = tokens[3];
+    }
+    else if (tokens.size() == 3) {
+        if (!lastOutput.empty()) {
+            // tr what with (pipeline scenario)
+            arg = "\"" + lastOutput + "\"";
+            what = tokens[1];
+            with = tokens[2];
         }
-
-        std::string errorMessage = checkInput(command);
-
-        if (!errorMessage.empty()) {
-            std::cerr << errorMessage << std::endl;
-            return;
-        }
-
-        // echo command
-        if (command[0] == "echo") {
-            this->checkAndExecuteEcho(command);
-        }
-
-        // prompt command
-        else if (command[0] == "prompt") {
-            this->checkAndExecutePrompt(command);
-        }
-
-        // time command
-        else if (command[0] == "time") {
-            this->checkAndExecuteTime(command);
-        }
-
-        // date command
-        else if (command[0] == "date") {
-            this->checkAndExecuteDate(command);
-        }
-
-        // touch command
-        else if (command[0] == "touch") {
-            this->checkAndExecuteTouch(command);
-        }
-
-        // wc command
-        else if (command[0] == "wc") {
-            this->checkAndExecuteWC(command);
-        }
-
-        // truncate command
-        else if (command[0] == "truncate") {
-            this->checkAndExecuteTruncate(command);
-        }
-
-        // rm command
-        else if (command[0] == "rm") {
-            this->checkAndExecuteRm(command);
-        }
-
-        // undefined command
         else {
-            std::cerr << "Unknown command: " << command[0] << std::endl;
+            // tr argument what
+            arg = tokens[1];
+            what = tokens[2];
+            with = "";
         }
+    }
+    else if (tokens.size() == 2) {
+        // tr what
+        if (!lastOutput.empty()) {
+            arg = "\"" + lastOutput + "\"";
+            what = tokens[1];
+            with = "";
+        }
+        else {
+            arg = "";
+            what = tokens[1];
+            with = "";
+        }
+    }
+    else {
+        std::cerr << "Invalid tr command syntax.\n";
+        return;
+    }
+
+    TrCommand trCmd(what, with, arg);
+    trCmd.execute();
+    this->output = trCmd.getLastOutput();
 }
 
-void Interpreter::findCommandPipeline(std::vector<std::string>& command) {
-    std::string lastOutput = this->getLastOutput();
+
+void Interpreter::findAndExecuteCommand(std::vector<std::string>& command, bool isPipeline) {
+    std::string lastOutput;
+
+    if (isPipeline) {
+        lastOutput = this->getLastOutput();
+    }
 
     if (command.empty()) {
         std::cerr << "Empty command detected, skipping.\n";
@@ -203,54 +196,50 @@ void Interpreter::findCommandPipeline(std::vector<std::string>& command) {
         return;
     }
 
-    // echo command
+    // Komande kojima sme da se prosledi output iz prethodne komande
+    auto injectLastOutputIfNeeded = [&](const std::string& cmdName) {
+        if (!lastOutput.empty()) {
+            command.push_back('"' + lastOutput + '"');
+        }
+        };
+
+
+
     if (command[0] == "echo") {
-        if (!lastOutput.empty()) command.push_back('"' + lastOutput + '"');
+        if (isPipeline) injectLastOutputIfNeeded("echo");
         this->checkAndExecuteEcho(command);
     }
-
-    // prompt command
     else if (command[0] == "prompt") {
-        if (!lastOutput.empty()) command.push_back('"' + lastOutput + '"');
+        if (isPipeline) injectLastOutputIfNeeded("prompt");
         this->checkAndExecutePrompt(command);
     }
-
-    // time command
     else if (command[0] == "time") {
         this->checkAndExecuteTime(command);
     }
-
-    // date command
     else if (command[0] == "date") {
         this->checkAndExecuteDate(command);
     }
-
-    // touch command
     else if (command[0] == "touch") {
         this->checkAndExecuteTouch(command);
     }
-
-    // wc command
     else if (command[0] == "wc") {
-        if (!lastOutput.empty()) command.push_back('"' + lastOutput + '"');
+        if (isPipeline) injectLastOutputIfNeeded("wc");
         this->checkAndExecuteWC(command);
     }
-
-    // truncate command
     else if (command[0] == "truncate") {
         this->checkAndExecuteTruncate(command);
     }
-
-    // rm command
     else if (command[0] == "rm") {
         this->checkAndExecuteRm(command);
     }
-
-    // undefined command
+    else if (command[0] == "tr") {
+        this->checkAndExecuteTr(command);
+    }
     else {
         std::cerr << "Unknown command: " << command[0] << std::endl;
     }
 }
+
 
 void Interpreter::overwriteFile(const std::string& filename, const std::string& content) {
     std::ofstream fout(filename, std::ios::trunc);
