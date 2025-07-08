@@ -7,7 +7,7 @@
 
 class Interpreter {
 public:
-    // Funkcija za pristup instanci singletona
+    // Statička metoda za pristup instanci singletona
     static Interpreter& getInstance() {
         static Interpreter instance; // Stvara instancu samo pri prvom pozivu
         return instance;
@@ -20,44 +20,50 @@ public:
     Interpreter& operator=(Interpreter&&) = delete;
 
 
-    // Funkcija za izvršavanje zadatih komandi
+    // Glavna metoda za izvršavanje zadatih komandi
     void parseAndExecute(const std::string& line);
 
     // Prompt sign getter
     inline std::string getSign() { return sign; }
 
-    // Funkcija za menjanje prompt znaka
+    // Metoda za menjanje prompt znaka - de facto sign setter
     void changeSign(const std::string newSign);
 
     // Metoda za pronalazak komande i pokretanje izvršavanja
-    void findAndExecuteCommand(std::vector<std::string>& command, bool isPipeline);
+    void findAndExecuteCommand(std::vector<std::string>& command, bool isPipeline, const std::string& inputFile = "");
 
-    // Funkcija za izvršenje echo komande unutar interpetera
+    // Metoda za proveru i izvršenje echo komande unutar interpetera
     void checkAndExecuteEcho(const std::vector<std::string>& tokens);
 
-    // Funkcija za izvršenje prompt komande unutar interpetera
+    // Metoda za proveru i izvršenje prompt komande unutar interpetera
     void checkAndExecutePrompt(const std::vector<std::string>& tokens);
 
-    // Funkcija za izvršenje touch komande unutar interpetera
+    // Metoda za proveru i izvršenje touch komande unutar interpetera
     void checkAndExecuteTouch(const std::vector<std::string>& tokens);
 
-    // Funkcija za izvršenje wc komande unutar interpetera
+    // Metoda za proveru i izvršenje wc komande unutar interpetera
     void checkAndExecuteWC(const std::vector<std::string>& tokens);
 
-    // Funkcija za izvršenje time komande unutar interpetera
+    // Metoda za proveru i izvršenje time komande unutar interpetera
     void checkAndExecuteTime(const std::vector<std::string>& tokens);
 
-    // Funkcija za izvršenje date komande unutar interpetera
+    // Metoda za proveru i izvršenje date komande unutar interpetera
     void checkAndExecuteDate(const std::vector<std::string>& tokens);
 
-    // Funkcija za izvršavanje truncate komande unutar interpretera
+    // Metoda za proveru i izvršenje truncate komande unutar interpretera
     void checkAndExecuteTruncate(const std::vector<std::string>& tokens);
 
-    // Funkcija za izvršavanje rm komande unutar interpretera
+    // Metoda za proveru i izvršenje rm komande unutar interpretera
     void checkAndExecuteRm(const std::vector<std::string>& tokens);
 
-    // Funkcija za izvršavanje tr komande unutar interpretera
-    void checkAndExecuteTr(const std::vector<std::string>& tokens);
+    // Metoda za proveru i izvršenje tr komande unutar interpretera
+    void checkAndExecuteTr(const std::vector<std::string>& tokens, const std::string& lastOutput, const std::string& fileContent);
+
+    // Metoda za proveru i izvršenje batch komande unutar interpretera
+    void checkAndExecuteBatch(const std::vector<std::string>& tokens);
+
+    // Metoda za proveru i izvršenje head komande unutar interpretera
+    void checkAndExecuteHead(const std::vector<std::string>& tokens);
 
     // Izvršava redirekciju - upis u fajl
     void overwriteFile(const std::string& filename, const std::string& content);

@@ -20,5 +20,6 @@ int main() {
         std::cout << interpreter.getSign();  // Priprema za naredni komandu
     }
 
+    std::cout << std::endl;
     return 0; // Rad programa se završio bez greške
 }

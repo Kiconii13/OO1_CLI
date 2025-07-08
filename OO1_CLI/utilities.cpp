@@ -26,12 +26,12 @@ std::string readArgument(const std::string& rawArgument) {
 }
 
 // Funkcija za čitanje linije do 512 znakova
-std::string readLimitedLine() {
+std::string readLimitedLine(size_t maxLength) {
     std::string line;
     char ch;
     int count = 0;
 
-    while (count < 512 && std::cin.get(ch) && ch != '\n') {
+    while (count < maxLength && std::cin.get(ch) && ch != '\n') {
         line += ch;
         count++;
     }
@@ -146,6 +146,7 @@ commandsFromInput splitInput(const std::string& input) {
     commands.outputRedirected.push_back(false);
     commands.outputAppend.push_back(false);
     commands.outputFile.push_back("");
+    commands.inputFile.push_back("");
 
     while (stream.get(currentChar)) {
         if (currentChar == '"') {
@@ -176,8 +177,28 @@ commandsFromInput splitInput(const std::string& input) {
             commands.outputRedirected.push_back(false);
             commands.outputAppend.push_back(false);
             commands.outputFile.push_back("");
+            commands.inputFile.push_back("");
         }
-        else if (currentChar == '<');
+        else if (currentChar == '<') {
+            // preskoči eventualne razmake posle <
+            while (isspace(stream.peek())) stream.get();
+
+            // pročitaj ime fajla
+            std::string filename;
+            while (stream.peek() != EOF) {
+                char c = stream.peek();
+                if (isspace(c) || c == '|' || c == '<' || c == '>') {
+                    break;
+                }
+                stream.get(c);
+                filename += c;
+            }
+
+            if (!filename.empty()) {
+                commands.inputRedirected[commandIndex] = true;
+                commands.inputFile[commandIndex] = filename;
+            }
+        }
         else if (currentChar == '>') {
             bool isOutput = (currentChar == '>');
             bool append = false;

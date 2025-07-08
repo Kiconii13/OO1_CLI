@@ -134,12 +134,12 @@ void WordCountCommand::execute() {
 
 void WordCountCommand::countWords() {
     std::vector<std::string> words = splitString(argument);
-    output = words.size();
+    output = std::to_string(words.size());
     std::cout << words.size() << std::endl;
 }
 
 void WordCountCommand::countChars() {
-    output = argument.size();
+    output = std::to_string(argument.size());
     std::cout << argument.size() << std::endl;
 }
 
@@ -216,16 +216,12 @@ void HeadCommand::execute() {
     int count = 0;
     while (count < lineCount && std::getline(iss, line)) {
         std::cout << line << '\n';
+        !this->output.empty() ? this->output += line + '\n' : this->output = line + '\n';
         count++;
     }
 }
 
-bool HeadCommand::validTokens(const std::vector<std::string>& tokens) {
-    if (tokens.size() == 3) return true; // head -nX "tekst" ili fajl
-    if (tokens.size() == 2) return true; // head -nX  (standardni ulaz)
-    std::cout << "Required format: head -n<count> [argument]\n";
-    return false;
-}
+
 
 TrCommand::TrCommand(const std::string& whatArg, const std::string& withArg, const std::string& arg)
     : what(readArgument(whatArg)), with(!withArg.empty() ? readArgument(withArg) : "")
