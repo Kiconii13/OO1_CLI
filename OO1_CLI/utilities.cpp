@@ -14,7 +14,10 @@ std::string readArgument(const std::string& rawArgument) {
     }
     // Ukoliko nije pod navodnicima, pretpostavlja se da je fajl
     else {
-        std::ifstream file(rawArgument);
+        std::string normalizedPath = rawArgument;
+        std::replace(normalizedPath.begin(), normalizedPath.end(), '\\', '/');
+
+        std::ifstream file(normalizedPath);
         // Ne može se pronaći fajl
         if (!file) {
             throw std::runtime_error("Error: Could not open file: " + rawArgument);
@@ -58,8 +61,8 @@ std::vector<std::string> splitString(const std::string& str) {
 // Provera unosa za nedozvoljene karaktere
 std::string checkInput(const std::vector<std::string>& tokens) {
     // Regex za dozvoljenje karaktere van navodnika
-    std::regex validFileTokenRegex(R"(^[a-zA-Z0-9\-._]+$)"); // Dozvoljava tačku van navodnika
-    std::regex validCharacterRegex(R"(^[a-zA-Z0-9\-\"_]+$)"); // Ne -||-
+    std::regex validFileTokenRegex(R"(^[a-zA-Z0-9_\-./\\]+$)");   // Dozvoljava tačku van navodnika
+    std::regex validCharacterRegex(R"(^[a-zA-Z0-9_\-\"./\\]+$)"); // Ne -||-
 
     std::string fullInput;
     std::string errorPointer;

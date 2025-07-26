@@ -185,44 +185,44 @@ void Interpreter::checkAndExecuteTr(const std::vector<std::string>& tokens, cons
 
 void Interpreter::checkAndExecuteBatch(const std::vector<std::string>& tokens) {
     try {
-        // Ako je dat argument – čita iz fajla
+        std::string sourceText;
+
         if (tokens.size() == 2) {
-            std::string filename = tokens[1];
+            std::string arg = tokens[1];
 
-            std::ifstream file(filename);
-            if (!file.is_open()) {
-                std::cerr << "Error: Cannot open file: " << filename << std::endl;
-                return;
+            // Ako je navodnik ili ima \n, pretpostavljamo da je direktan sadržaj
+            bool isMultilineContent = false;
+            if (arg.find('\n') != std::string::npos) {
+                isMultilineContent = true;
+            }
+            if (arg.size() >= 2 && arg.front() == '"' && arg.back() == '"') {
+                isMultilineContent = true;
+                arg = arg.substr(1, arg.size() - 2); // ukloni navodnike
             }
 
-            std::string line;
-            while (std::getline(file, line)) {
-                if (line.empty()) continue;
-
-                std::cout << "Executing: " << line << std::endl;
-
-                try {
-                    this->parseAndExecute(line);
-                }
-                catch (const std::exception& e) {
-                    std::cerr << "Error executing command: " << line << std::endl;
-                    std::cerr << e.what() << std::endl;
-                }
+            if (isMultilineContent) {
+                sourceText = arg;
             }
-
-            file.close();
+            else {
+                // pokušaj da pročitaš fajl
+                std::ifstream file(arg);
+                if (!file.is_open()) {
+                    std::cerr << "Error: Cannot open file: " << arg << std::endl;
+                    return;
+                }
+                std::ostringstream buffer;
+                buffer << file.rdbuf();
+                sourceText = buffer.str();
+            }
         }
-        // Ako nije dat argument – čita sa tastature
         else if (tokens.size() == 1) {
             std::cout << "Enter commands (Ctrl+Z to finish):\n";
             std::string line;
-
             while (true) {
                 if (std::getline(std::cin, line)) {
                     if (line.empty()) continue;
 
                     std::cout << "Executing: " << line << std::endl;
-
                     try {
                         this->parseAndExecute(line);
                     }
@@ -231,22 +231,44 @@ void Interpreter::checkAndExecuteBatch(const std::vector<std::string>& tokens) {
                         std::cerr << e.what() << std::endl;
                     }
                 }
-
                 if (std::cin.eof() || std::cin.fail()) {
-                    std::cin.clear(); // resetuj stanje
+                    std::cin.clear();
                     std::cout << "\nEnd of batch input.\n";
                     break;
                 }
             }
+            return;
         }
         else {
             std::cerr << "Error: batch command accepts at most one argument\n";
+            return;
         }
+
+        // Obradi višelinijski tekst kao listu komandi
+        std::istringstream stream(sourceText);
+        std::string line;
+        while (std::getline(stream, line)) {
+            if (line.empty()) continue;
+
+            std::cout << "Executing: " << line << std::endl;
+
+            try {
+                this->parseAndExecute(line);
+            }
+            catch (const std::exception& e) {
+                std::cerr << "Error executing command: " << line << std::endl;
+                std::cerr << e.what() << std::endl;
+            }
+        }
+
+        this->output.clear();
     }
     catch (const std::exception& e) {
         std::cerr << "Batch error: " << e.what() << std::endl;
     }
 }
+
+
 
 void Interpreter::checkAndExecuteHead(const std::vector<std::string>& tokens) {
     try {

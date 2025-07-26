@@ -138,7 +138,10 @@
     <ClInclude Include="utilities.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\..\..\..\..\AppData\Local\Temp\Rar$DRa12048.2908\input.txt" />
+    <Text Include="..\..\..\..\..\AppData\Local\Temp\Rar$DRa23548.31157\commands.txt" />
+    <Text Include="..\..\..\..\..\AppData\Local\Temp\Rar$DRa23548.31157\hello.txt" />
+    <Text Include="..\..\..\..\..\AppData\Local\Temp\Rar$DRa23548.31157\input.txt" />
+    <Text Include="..\..\..\..\..\AppData\Local\Temp\Rar$DRa23548.36171\symbols\dollar.txt" />
     <Text Include="text.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

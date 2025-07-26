@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Resource Files\symbols">
+      <UniqueIdentifier>{8e991411-5754-497c-b438-4d7b4e4a3aac}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="program.cpp">
@@ -43,8 +46,17 @@
     <Text Include="text.txt">
       <Filter>Resource Files</Filter>
     </Text>
-    <Text Include="..\..\..\..\..\AppData\Local\Temp\Rar$DRa12048.2908\input.txt">
+    <Text Include="..\..\..\..\..\AppData\Local\Temp\Rar$DRa23548.31157\commands.txt">
       <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\..\..\..\..\AppData\Local\Temp\Rar$DRa23548.31157\hello.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\..\..\..\..\AppData\Local\Temp\Rar$DRa23548.31157\input.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\..\..\..\..\AppData\Local\Temp\Rar$DRa23548.36171\symbols\dollar.txt">
+      <Filter>Resource Files\symbols</Filter>
     </Text>
   </ItemGroup>
 </Project>
